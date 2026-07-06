@@ -7,3 +7,4 @@ google-cloud-logging
 
 pandas
 pyarrow
+google-cloud-secret-manager

@@ -3,7 +3,7 @@ from datetime import datetime
 from google.cloud import bigquery
 
 from config import PROJECT_ID, DATASET, TABLES
-from logger import logger
+from logger import log_event
 from utils import file_exists
 from audit.audit_logger import write_audit_log
 
@@ -27,7 +27,7 @@ def get_table_name(file_name: str) -> str:
         return TABLES["crm"]
 
     else:
-        raise Exception(f"Unknown file type : {file_name}")
+        raise Exception(f"Unknown file type: {file_name}")
 
 
 def load_file(bucket_name: str, file_name: str):
@@ -35,13 +35,7 @@ def load_file(bucket_name: str, file_name: str):
     start_time = datetime.utcnow()
 
     if not file_exists(bucket_name, file_name):
-        raise Exception(
-            f"{file_name} not found in {bucket_name}"
-        )
-
-    """
-    Load CSV from GCS into BigQuery
-    """
+        raise Exception(f"{file_name} not found in {bucket_name}")
 
     table_name = get_table_name(file_name)
 
@@ -49,11 +43,12 @@ def load_file(bucket_name: str, file_name: str):
 
     gcs_uri = f"gs://{bucket_name}/{file_name}"
 
-    logger.info("=" * 60)
-    logger.info("Starting BigQuery Load")
-    logger.info(f"GCS URI : {gcs_uri}")
-    logger.info(f"Destination : {table_id}")
-    logger.info("=" * 60)
+    log_event(
+        "BQ_LOAD_STARTED",
+        bucket=bucket_name,
+        file=file_name,
+        table=table_name,
+    )
 
     try:
 
@@ -73,7 +68,11 @@ def load_file(bucket_name: str, file_name: str):
 
         table = client.get_table(table_id)
 
-        logger.info(f"Rows Loaded : {table.num_rows}")
+        log_event(
+            "BQ_LOAD_COMPLETED",
+            table=table_name,
+            rows_loaded=table.num_rows,
+        )
 
         end_time = datetime.utcnow()
 
@@ -95,6 +94,13 @@ def load_file(bucket_name: str, file_name: str):
         }
 
     except Exception as e:
+
+        log_event(
+            "BQ_LOAD_FAILED",
+            table=table_name,
+            file=file_name,
+            error=str(e),
+        )
 
         end_time = datetime.utcnow()
 
