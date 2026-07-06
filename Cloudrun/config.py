@@ -1,6 +1,17 @@
-PROJECT_ID = "pro1-501113"
+import os
 
-DATASET = "marketing_dw"
+# Read from Cloud Run Environment Variables
+# If not available, use defaults (for local development)
+
+PROJECT_ID = os.getenv(
+    "PROJECT_ID",
+    "pro1-501113"
+)
+
+DATASET = os.getenv(
+    "DATASET",
+    "marketing_dw"
+)
 
 TABLES = {
     "google_ads": "google_ads_raw",
