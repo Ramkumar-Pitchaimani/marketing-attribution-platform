@@ -2,7 +2,7 @@ from datetime import datetime
 
 from google.cloud import bigquery
 
-from config import PROJECT_ID, DATASET, TABLES
+from settings import PROJECT_ID, DATASET, TABLES
 from logger import log_event
 from utils import file_exists
 from audit.audit_logger import write_audit_log

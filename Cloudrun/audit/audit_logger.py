@@ -2,7 +2,7 @@ from google.cloud import bigquery
 from datetime import datetime
 import uuid
 
-from config import PROJECT_ID, DATASET
+from settings import PROJECT_ID, DATASET
 
 client = bigquery.Client(project=PROJECT_ID)
 
