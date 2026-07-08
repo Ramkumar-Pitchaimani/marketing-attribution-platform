@@ -4,21 +4,47 @@ AS
 
 SELECT
 
-campaign_date,
+    d.calendar_date,
 
-SUM(impressions) impressions,
+    SUM(f.impressions) AS total_impressions,
 
-SUM(clicks) clicks,
+    SUM(f.clicks) AS total_clicks,
 
-SUM(spend) spend,
+    ROUND(SUM(f.spend),2) AS total_spend,
 
-SUM(conversions) conversions,
+    SUM(f.conversions) AS total_conversions,
 
-SUM(conversion_value) conversion_value
+    ROUND(SUM(f.conversion_value),2) AS total_revenue,
+
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.clicks),
+            SUM(f.impressions)
+        ) * 100,
+        2
+    ) AS ctr,
+
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.conversion_value),
+            SUM(f.spend)
+        ),
+        2
+    ) AS roas
 
 FROM
-`pro1-501113.marketing_dw.fact_marketing`
+`pro1-501113.marketing_dw.fact_marketing` f
 
-GROUP BY campaign_date
+JOIN
+`pro1-501113.marketing_dw.dim_date` d
 
-ORDER BY campaign_date;
+ON
+f.date_key = d.date_key
+
+GROUP BY
+
+d.calendar_date
+
+ORDER BY
+
+d.calendar_date;

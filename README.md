@@ -1,79 +1,109 @@
 # Marketing Attribution Platform on Google Cloud Platform (GCP)
 
-## Overview
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Google Cloud](https://img.shields.io/badge/Google%20Cloud-GCP-blue)
+![Cloud Run](https://img.shields.io/badge/Cloud%20Run-Serverless-success)
+![BigQuery](https://img.shields.io/badge/BigQuery-Data%20Warehouse-blue)
+![GitHub Actions](https://img.shields.io/badge/CI-CD-success)
+![Status](https://img.shields.io/badge/Project-In%20Progress-orange)
 
-This project demonstrates an end-to-end **Marketing Attribution Platform** built entirely on **Google Cloud Platform (GCP)** using an event-driven architecture.
+---
 
-The platform automatically ingests marketing data from Google Ads, Meta Ads, and CRM systems into BigQuery, transforms the data into a dimensional warehouse, and provides reporting-ready datasets for Looker Studio dashboards.
+# Overview
 
-This project simulates a real-world marketing analytics pipeline similar to those used by digital marketing and analytics teams.
+This project demonstrates an enterprise-style **Marketing Attribution Platform** built entirely on **Google Cloud Platform (GCP)** using a modern **serverless, event-driven architecture**.
+
+The platform automatically ingests marketing data from multiple sources including **Google Ads, Meta Ads, and CRM systems**, loads the data into **BigQuery**, transforms it into an analytics-ready data warehouse, and prepares reporting datasets for **Looker Studio** dashboards.
+
+This project closely simulates a production-grade marketing analytics platform used by digital marketing and analytics teams.
 
 ---
 
 # Business Problem
 
-Marketing teams typically receive data from multiple advertising platforms:
+Marketing teams receive campaign data from multiple independent systems.
 
 - Google Ads
 - Meta (Facebook) Ads
-- CRM / Lead Management System
+- CRM / Lead Management Systems
 
-Since these systems are independent, it becomes difficult to answer questions like:
+Since these platforms are disconnected, answering business questions becomes difficult.
 
-- Which campaign generated the most revenue?
-- Which marketing channel has the highest ROI?
+Examples include:
+
+- Which campaign generated the highest revenue?
+- Which marketing channel delivers the best ROI?
 - What is the Cost Per Lead (CPL)?
 - What is the Return On Ad Spend (ROAS)?
-- Which campaigns are underperforming?
+- Which campaigns should receive additional budget?
 
-This project solves those challenges by building a centralized analytics platform.
+This project solves those challenges by creating a centralized analytics platform on GCP.
 
 ---
 
 # Solution Architecture
 
 ```
+                    Google Ads
+                    Meta Ads
+                    CRM
 
-Google Ads CSV
-Meta Ads CSV
-CRM Leads CSV
+                       │
+                       ▼
 
-↓
+          Google Cloud Storage (Landing)
 
-Google Cloud Storage (GCS)
+                       │
+              Object Created Event
 
-↓
+                       ▼
 
-Eventarc Trigger
+                  Eventarc Trigger
 
-↓
+                       ▼
 
-Cloud Run (Python ETL)
+          Cloud Run (Python ETL Service)
 
-↓
+ ┌──────────────────────────────────────────────┐
+ │                                              │
+ │  Secret Manager                              │
+ │  Environment Variables                       │
+ │  Structured Logging                          │
+ │  Audit Logging                               │
+ │  File Validation                             │
+ │  Dynamic Table Routing                       │
+ │                                              │
+ └──────────────────────────────────────────────┘
 
-BigQuery Bronze Layer
+                       │
 
-↓
+                       ▼
 
-BigQuery Silver Layer
+             BigQuery Bronze Layer
 
-↓
+                       │
 
-Dimension Tables
+                       ▼
 
-↓
+             BigQuery Silver Layer
 
-Fact Tables
+                       │
 
-↓
+                       ▼
 
-Reporting Views
+          Dimension & Fact Tables
 
-↓
+                       │
 
-Looker Studio Dashboard
+                       ▼
 
+             Reporting Views
+
+                       │
+
+                       ▼
+
+      Looker Studio / Power BI Dashboard
 ```
 
 ---
@@ -82,37 +112,56 @@ Looker Studio Dashboard
 
 | Component | Purpose |
 |------------|----------|
-| Google Cloud Storage | Landing zone for marketing files |
-| Eventarc | Detects file uploads |
+| Cloud Storage | Landing zone for incoming marketing files |
+| Eventarc | Detects new file uploads |
 | Cloud Run | Executes ETL automatically |
-| Python | Data loading and processing |
-| BigQuery | Data Warehouse |
-| SQL | Data transformations |
-| Looker Studio | Reporting Dashboard |
+| Python | Data ingestion and processing |
+| Secret Manager | Secure credential management |
+| Environment Variables | Runtime configuration |
+| BigQuery | Enterprise Data Warehouse |
+| GitHub | Source Control |
+| GitHub Actions | CI/CD Pipeline |
+| Docker | Application Containerization |
+| Cloud Logging | Centralized Application Logs |
+| Audit Table | ETL Execution History |
+| Looker Studio | Business Intelligence Dashboard |
 
 ---
 
 # Technology Stack
 
-- Google Cloud Platform (GCP)
+## Cloud
+
+- Google Cloud Platform
 - Cloud Storage
-- Eventarc
 - Cloud Run
 - BigQuery
+- Eventarc
+- Secret Manager
+- Cloud Logging
+- IAM
+
+## Programming
+
 - Python 3.12
 - Flask
+- Pandas
 - Google Cloud SDK
+
+## DevOps
+
 - Docker
-- SQL
 - Git
 - GitHub
+- GitHub Actions
+
+## Reporting
+
 - Looker Studio
 
 ---
 
-# Dataset
-
-Three sample datasets were created.
+# Sample Dataset
 
 | Dataset | Records |
 |----------|---------|
@@ -125,57 +174,38 @@ Three sample datasets were created.
 # Project Structure
 
 ```
-
 marketing-attribution-platform/
 
-app.py
-
-loader.py
-
-config.py
-
-logger.py
-
-utils.py
-
-Dockerfile
-
-requirements.txt
-
-sample_data/
-
-google_ads_mock_5000.csv
-
-meta_ads_mock_5000.csv
-
-crm_leads_mock_2000.csv
-
-sql/
-
-silver/
-
-gold/
-
-views/
-
-validation/
-
-docs/
-
-sprint1.md
-
-sprint2.md
-
-sprint3.md
-
-sprint4.md
-
-sprint5.md
-
-sprint6.md
-
-README.md
-
+│
+├── Cloudrun/
+│   │
+│   ├── app.py
+│   ├── loader.py
+│   ├── logger.py
+│   ├── settings.py
+│   ├── utils.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   │
+│   ├── audit/
+│   │     audit_logger.py
+│   │
+│   ├── config/
+│   │     __init__.py
+│   │     secret_manager.py
+│   │
+│   ├── credentials/
+│   ├── sample_data/
+│   ├── sql/
+│   └── docs/
+│
+├── .github/
+│    └── workflows/
+│          deployment.yaml
+│
+├── architecture_diagram.png
+│
+└── README.md
 ```
 
 ---
@@ -194,7 +224,7 @@ Raw landing tables.
 
 ## Silver Layer
 
-Cleaned and standardized tables.
+Standardized and cleansed data.
 
 - google_ads_clean
 - meta_ads_clean
@@ -226,31 +256,100 @@ Cleaned and standardized tables.
 
 ---
 
-# Event Flow
+# Current Event Flow
 
-1. Marketing CSV uploaded into Cloud Storage
-2. Eventarc detects new file
-3. Eventarc triggers Cloud Run
-4. Cloud Run executes Python ETL
-5. CSV loaded into BigQuery Bronze layer
-6. SQL transforms Bronze → Silver
-7. SQL builds Dimensions
-8. SQL builds Fact Tables
-9. SQL creates Reporting Views
-10. Looker Studio consumes Reporting Views
+```
+Marketing CSV Upload
+
+        │
+
+        ▼
+
+Google Cloud Storage
+
+        │
+
+        ▼
+
+Eventarc Trigger
+
+        │
+
+        ▼
+
+Cloud Run
+
+        │
+
+        ▼
+
+Python ETL
+
+        │
+
+        ▼
+
+BigQuery
+
+        │
+
+        ▼
+
+Audit Logging
+
+        │
+
+        ▼
+
+Reporting Views
+
+        │
+
+        ▼
+
+Looker Studio
+```
 
 ---
 
 # Features
 
+## Data Engineering
+
 - Event-driven architecture
-- Serverless data ingestion
+- Serverless ETL
 - Automatic BigQuery loading
-- Modular SQL transformations
-- Star schema data warehouse
-- Marketing attribution model
-- Executive reporting views
-- Cloud-native architecture
+- Dynamic table routing
+- Modular ETL design
+
+---
+
+## Security
+
+- Google Secret Manager
+- Environment Variables
+- IAM Service Accounts
+- No credentials stored in source code
+
+---
+
+## Logging & Monitoring
+
+- Structured Logging
+- Cloud Logging
+- Audit Logging
+- Processing Statistics
+- Error Handling
+
+---
+
+## DevOps
+
+- Dockerized Application
+- GitHub Repository
+- GitHub Actions
+- Automatic Cloud Run Deployment
+- Version-controlled Infrastructure
 
 ---
 
@@ -262,71 +361,120 @@ The platform calculates:
 - Total Clicks
 - Total Impressions
 - Total Conversions
-- Conversion Rate (CTR)
+- Click Through Rate (CTR)
 - Average CPC
 - Cost Per Lead (CPL)
 - Cost Per Acquisition (CPA)
 - Return On Ad Spend (ROAS)
 - Revenue by Campaign
-- Revenue by Channel
+- Revenue by Marketing Channel
 
 ---
 
-# Validation
+# Data Validation
 
-Validation SQL scripts are available under
+Validation SQL scripts verify:
 
-```
+- Row Counts
+- Duplicate Records
+- NULL Checks
+- Fact Table Integrity
+- Dimension Integrity
+- Data Quality
+- Summary Statistics
 
-sql/validation/
+---
 
-```
+# CI/CD Pipeline
 
-These scripts verify
+Every commit pushed to the **main** branch automatically triggers GitHub Actions.
 
-- Row counts
-- Duplicate records
-- NULL values
-- Fact table integrity
-- Dimension integrity
-- Data quality
-- Executive summary counts
+Deployment Pipeline
+
+1. Checkout Source Code
+2. Build Docker Image
+3. Push Image to Artifact Registry
+4. Deploy Cloud Run
+5. Create New Revision
+6. Route 100% Traffic to Latest Revision
+
+No manual deployment is required.
+
+---
+
+# Production Features Implemented
+
+## Sprint 1–11
+
+- Cloud Storage
+- BigQuery
+- Cloud Run
+- Eventarc
+- Modular ETL
+- Audit Logging
+- Google Ads Integration (Foundation)
+
+---
+
+## Sprint 12
+
+- Docker
+- GitHub Repository
+- GitHub Actions
+- Automated CI/CD
+
+---
+
+## Sprint 13
+
+- Secret Manager
+- Environment Variables
+- Structured Logging
+- Production Configuration
+- Secure Credential Management
 
 ---
 
 # Deployment Steps
 
 1. Create GCP Project
-2. Enable APIs
-3. Create Cloud Storage bucket
-4. Upload sample data
-5. Create BigQuery dataset
-6. Deploy Cloud Run
-7. Configure Eventarc trigger
-8. Execute SQL transformations
-9. Connect Looker Studio
+2. Enable Required APIs
+3. Create IAM Service Accounts
+4. Configure Secret Manager
+5. Create Cloud Storage Bucket
+6. Create BigQuery Dataset
+7. Deploy Cloud Run
+8. Configure Eventarc Trigger
+9. Configure GitHub Actions
+10. Upload Marketing Files
+11. Monitor Cloud Logging
+12. Build Reporting Views
+13. Connect Looker Studio
 
 ---
 
-# Future Improvements
+# Future Enhancements
 
 - Google Ads API Integration
 - Meta Marketing API Integration
 - Incremental Loading
 - Slowly Changing Dimensions (SCD Type 2)
-- Dataform / dbt implementation
-- Cloud Composer orchestration
-- CI/CD using Cloud Build
-- Cloud Monitoring alerts
 - Data Quality Framework
-- Unit testing
+- Monitoring Dashboard
+- Email Alerts
+- Retry Framework
+- Cloud Scheduler
+- dbt / Dataform
 - Terraform Infrastructure as Code
+- Unit Testing
+- Integration Testing
+- Cost Monitoring
 
 ---
 
 # Sample Dashboard
 
-Dashboard pages include:
+Dashboard pages will include:
 
 - Executive Summary
 - Campaign Performance
@@ -338,3 +486,10 @@ Dashboard pages include:
 - ROAS Analysis
 
 ---
+
+# Author
+
+**Ramkumar Pitchaimani**
+
+Google Cloud Platform | Data Engineering | BigQuery | Cloud Run | Eventarc | Python | GitHub Actions
+

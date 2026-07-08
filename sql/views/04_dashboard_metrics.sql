@@ -4,23 +4,86 @@ AS
 
 SELECT
 
-SUM(impressions) AS total_impressions,
+    fm.total_impressions,
 
-SUM(clicks) AS total_clicks,
+    fm.total_clicks,
 
-SUM(spend) AS total_spend,
+    fm.total_spend,
 
-SUM(conversions) AS total_conversions,
+    fm.total_conversions,
 
-SUM(conversion_value) AS total_conversion_value,
+    fm.total_revenue,
 
-SAFE_DIVIDE(SUM(clicks),SUM(impressions)) AS ctr,
+    fl.total_leads,
 
-SAFE_DIVIDE(SUM(spend),SUM(clicks)) AS avg_cpc,
+    ROUND(
+        SAFE_DIVIDE(
+            fm.total_clicks,
+            fm.total_impressions
+        ) * 100,
+        2
+    ) AS ctr,
 
-SAFE_DIVIDE(SUM(spend),SUM(conversions)) AS cost_per_conversion,
+    ROUND(
+        SAFE_DIVIDE(
+            fm.total_spend,
+            fm.total_clicks
+        ),
+        2
+    ) AS avg_cpc,
 
-SAFE_DIVIDE(SUM(conversion_value),SUM(spend)) AS roas
+    ROUND(
+        SAFE_DIVIDE(
+            fm.total_spend,
+            fm.total_conversions
+        ),
+        2
+    ) AS cost_per_conversion,
+
+    ROUND(
+        SAFE_DIVIDE(
+            fm.total_spend,
+            fl.total_leads
+        ),
+        2
+    ) AS cost_per_lead,
+
+    ROUND(
+        SAFE_DIVIDE(
+            fm.total_revenue,
+            fm.total_spend
+        ),
+        2
+    ) AS roas
 
 FROM
-`pro1-501113.marketing_dw.fact_marketing`;
+
+(
+    SELECT
+
+        SUM(impressions) AS total_impressions,
+
+        SUM(clicks) AS total_clicks,
+
+        ROUND(SUM(spend),2) AS total_spend,
+
+        SUM(conversions) AS total_conversions,
+
+        ROUND(SUM(conversion_value),2) AS total_revenue
+
+    FROM
+    `pro1-501113.marketing_dw.fact_marketing`
+
+) fm
+
+CROSS JOIN
+
+(
+    SELECT
+
+        COUNT(*) AS total_leads
+
+    FROM
+    `pro1-501113.marketing_dw.fact_leads`
+
+) fl;

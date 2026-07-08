@@ -4,19 +4,49 @@ AS
 
 SELECT
 
-d.channel_name,
+    d.channel_name,
 
-SUM(f.impressions) impressions,
+    SUM(f.impressions) AS total_impressions,
 
-SUM(f.clicks) clicks,
+    SUM(f.clicks) AS total_clicks,
 
-SUM(f.spend) spend,
+    ROUND(SUM(f.spend),2) AS total_spend,
 
-SUM(f.conversions) conversions,
+    SUM(f.conversions) AS total_conversions,
 
-SAFE_DIVIDE(SUM(f.clicks),SUM(f.impressions)) ctr,
+    ROUND(SUM(f.conversion_value),2) AS total_revenue,
 
-SAFE_DIVIDE(SUM(f.spend),SUM(f.clicks)) avg_cpc
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.clicks),
+            SUM(f.impressions)
+        ) * 100,
+        2
+    ) AS ctr,
+
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.spend),
+            SUM(f.clicks)
+        ),
+        2
+    ) AS avg_cpc,
+
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.spend),
+            SUM(f.conversions)
+        ),
+        2
+    ) AS cost_per_conversion,
+
+    ROUND(
+        SAFE_DIVIDE(
+            SUM(f.conversion_value),
+            SUM(f.spend)
+        ),
+        2
+    ) AS roas
 
 FROM
 `pro1-501113.marketing_dw.fact_marketing` f
@@ -24,7 +54,8 @@ FROM
 JOIN
 `pro1-501113.marketing_dw.dim_channel` d
 
-ON f.channel_key=d.channel_key
+ON f.channel_key = d.channel_key
 
 GROUP BY
+
 d.channel_name;

@@ -1,21 +1,39 @@
-CREATE OR REPLACE VIEW marketing_dw.vw_lead_attribution AS
+CREATE OR REPLACE VIEW
+`pro1-501113.marketing_dw.vw_lead_attribution`
+AS
 
 SELECT
 
-lead_id,
-lead_date,
-customer_name,
-city,
-country,
-status,
-revenue,
+    fl.lead_id,
 
-CASE
-    WHEN gclid IS NOT NULL THEN 'Google Ads'
-    WHEN fbclid IS NOT NULL THEN 'Meta Ads'
-    ELSE 'Organic'
-END AS marketing_channel,
+    dd.calendar_date AS lead_date,
 
-utm_campaign
+    fl.lead_source,
 
-FROM marketing_dw.crm_leads;
+    fl.lead_status,
+
+    fl.revenue,
+
+    CASE
+
+        WHEN fl.channel_key = 1 THEN 'Google Ads'
+
+        WHEN fl.channel_key = 2 THEN 'Meta Ads'
+
+        ELSE 'Organic'
+
+    END AS marketing_channel,
+
+    fl.utm_campaign,
+
+    fl.gclid,
+
+    fl.fbclid
+
+FROM
+`pro1-501113.marketing_dw.fact_leads` fl
+
+LEFT JOIN
+`pro1-501113.marketing_dw.dim_date` dd
+
+ON fl.date_key = dd.date_key;
