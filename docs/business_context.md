@@ -519,8 +519,6 @@ Better business decisions
 
 ---
 
-# 18. Interview Summary
+# 18. Summary
 
-One-minute explanation
-
-"I built a serverless Marketing Attribution Platform on GCP that automatically ingests Google Ads, Meta Ads, and CRM data using Cloud Storage, Eventarc, and Cloud Run. The data is transformed through Bronze, Silver, and Gold layers in BigQuery into a star schema with dimensions and facts. Reporting views power Looker Studio dashboards for executives and marketing teams, enabling campaign analysis, channel performance, lead attribution, and KPI reporting while optimizing cloud costs through an event-driven, serverless architecture."
+"Marketing Attribution Platform on GCP - Automatically ingests Google Ads, Meta Ads, and CRM data using Cloud Storage, Eventarc, and Cloud Run. The data is transformed through Bronze, Silver, and Gold layers in BigQuery into a star schema with dimensions and facts. Reporting views power Looker Studio dashboards for executives and marketing teams, enabling campaign analysis, channel performance, lead attribution, and KPI reporting while optimizing cloud costs through an event-driven, serverless architecture."
